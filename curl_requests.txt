@@ -1,0 +1,75 @@
+
+
+./gradlew cloudNativeDeveloperDistributedSystemWithSecurity \
+    -PregistrationServerUrl=https://registration-pal-amitjim-review.apps.pikes.pal.pivotal.io \
+    -PbacklogServerUrl=https://backlog-pal-amitjim-review.apps.pikes.pal.pivotal.io \
+    -PallocationsServerUrl=https://allocations-pal-amitjim-review.apps.pikes.pal.pivotal.io \
+    -PtimesheetsServerUrl=https://timesheets-pal-amitjim-review.apps.pikes.pal.pivotal.io \
+    -PactuatorUsername=actuator \
+    -PactuatorPassword=operations4red
+
+
+@Local
+
+@@Get Auth Token
+
+curl 'http://localhost:8999/oauth/token' -i -u 'tracker-client:supersecret' -X POST -H 'Accept: application/json' -H 'Content-Type: application/x-www-form-urlencoded' -d 'grant_type=client_credentials&response_type=token&token_format=opaque'
+
+@@Create a user.
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" localhost:8083/registration -d'{"name": "Jim"}'
+
+@@Find the account associated to the created user.
+
+curl -i -H"Authorization: Bearer <Auth Token>" localhost:8083/accounts?ownerId=${USER_ID}
+
+@@Create Project A, and Project B using the registration server.
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" localhost:8083/projects -d"{\"name\": \"Project A\", \"accountId\": \"${ACCOUNT_ID}\"}"
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" localhost:8083/projects -d"{\"name\": \"Project B\", \"accountId\": \"${ACCOUNT_ID}\"}"
+
+@@Create an allocation using Project A's id.
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" localhost:8081/allocations/ -d"{\"projectId\": \"22\", \"userId\": \"16\", \"firstDay\": \"2015-05-17\", \"lastDay\": \"2015-05-18\"}"
+
+@@Create an allocation using Project B's id
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" localhost:8081/allocations/ -d"{\"projectId\": \"${PROJECT_B_ID}\", \"userId\": \"${USER_ID}\", \"firstDay\": \"2015-05-17\", \"lastDay\": \"2015-05-18\"}"
+
+
+@PCF
+
+@@Get Auth Token
+
+curl -k "https://p-identity.login.sys.pikes.pal.pivotal.io/oauth/token" -i -u "<client id>:<secret>" -X POST -H 'Accept: application/json' -H 'Content-Type: application/x-www-form-urlencoded' -d 'grant_type=client_credentials&response_type=token'
+
+@@Create a user.
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" registration-pal-amitjim-review.apps.pikes.pal.pivotal.io/registration -d'{"name": "Jim"}'
+
+@@Find the account associated to the created user.
+
+curl -i -H"Authorization: Bearer <Auth Token>" registration-pal-amitjim-review.apps.pikes.pal.pivotal.io/accounts?ownerId=${USER_ID}
+
+@@Create Project A, and Project B using the registration server.
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" registration-pal-amitjim-review.apps.pikes.pal.pivotal.io/projects -d"{\"name\": \"Project A\", \"accountId\": \"${ACCOUNT_ID}\"}"
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" registration-pal-amitjim-review.apps.pikes.pal.pivotal.io/projects -d"{\"name\": \"Project B\", \"accountId\": \"${ACCOUNT_ID}\"}"
+
+@@Create an allocation using Project A's id.
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" allocations-pal-amitjim-review.apps.pikes.pal.pivotal.io/allocations/ -d"{\"projectId\": \"22\", \"userId\": \"16\", \"firstDay\": \"2015-05-17\", \"lastDay\": \"2015-05-18\"}"
+
+@@Create an allocation using Project B's id
+
+curl -i -XPOST -H"Authorization: Bearer <Auth Token>" -H"Content-Type: application/json" allocations-pal-amitjim-review.apps.pikes.pal.pivotal.io/allocations/ -d"{\"projectId\": \"${PROJECT_B_ID}\", \"userId\": \"${USER_ID}\", \"firstDay\": \"2015-05-17\", \"lastDay\": \"2015-05-18\"}"
+
+
+
+
+
+
+
+

@@ -1,0 +1,1 @@
+siege -c249 --content-type "application/json" 'http://allocations-pal-amitjim-review.apps.pikes.pal.pivotal.io/allocations POST {"projectId": 22, "userId": 16, "firstDay": "2015-05-17", "lastDay": "2015-05-18"}' -v
